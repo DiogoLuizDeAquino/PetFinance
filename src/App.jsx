@@ -1,49 +1,35 @@
+// src/App.jsx
 import React, { useState } from 'react';
-import SelectionScreen from './components/SelectionScreen';
-import MagazineScreen from './components/MagazineScreen';
-import { MAGAZINES_DATA } from './data/magazines';
+import Login from './components/Auth/Login';
+import Register from './components/Auth/Register';
+import Dashboard from './components/Dashboard'; // Este caminho está correto, pois App.jsx está no mesmo nível de components
 
-function App() {
-  const [selectedMagazineId, setSelectedMagazineId] = useState(null);
-  const [isFullScreen, setIsFullScreen] = useState(false);
+import './index.css';
 
-  const selectedMagazine = selectedMagazineId ? MAGAZINES_DATA[selectedMagazineId] : null;
+const App = () => {
+  const [appState, setAppState] = useState(null);
 
-  // FUNÇÃO PARA FORÇAR TELA CHEIA
-  const enterFullScreen = () => {
-    const element = document.documentElement; // Pega o elemento raiz da página
-    if (element.requestFullscreen) {
-      element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) { /* Safari */
-      element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) { /* IE11 */
-      element.msRequestFullscreen();
-    }
-    setIsFullScreen(true);
+  const handleLoginSuccess = () => {
+    setAppState('loggedIn');
   };
 
-  return (
-    <div className="w-full h-full">
-      {/* Mostra o botão de tela cheia apenas na tela de seleção */}
-      {!selectedMagazineId && !isFullScreen && (
-        <button
-          onClick={enterFullScreen}
-          className="absolute bottom-20 left-1/2 -translate-x-1/2 z-40 bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-400 transition-colors"
-        >
-          Entrar em Modo Exibição
-        </button>
-      )}
+  const handleRegisterSuccess = () => {
+    setAppState(null);
+  };
 
-      <SelectionScreen onSelectMagazine={setSelectedMagazineId} />
+  const handleLogout = () => {
+    setAppState(null);
+  };
 
-      {selectedMagazine && (
-        <MagazineScreen 
-          magazine={selectedMagazine} 
-          onClose={() => setSelectedMagazineId(null)}
-        />
-      )}
-    </div>
-  );
-}
+  if (appState === 'loggedIn') {
+    return <Dashboard onLogout={handleLogout} />;
+  }
+
+  if (appState === 'register') {
+    return <Register onNavigateToLogin={() => setAppState(null)} onRegisterSuccess={handleRegisterSuccess} />;
+  }
+
+  return <Login onLogin={() => setAppState('loggedIn')} onNavigateToRegister={() => setAppState('register')} />;
+};
 
 export default App;
